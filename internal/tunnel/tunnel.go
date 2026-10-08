@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -53,15 +54,31 @@ func NewTunnel(cfg *config.Config) *Tunnel {
 	}
 }
 
-// Start launches Zero-Config Direct TCP Tunnel for MongoDB
+// Start launches Multi-Tunnel Orchestrator for MongoDB
 func (t *Tunnel) Start() error {
-	log.Println("[Tunnel] ⚡ Launching Lifetime Static TCP Tunnel for MongoDB...")
+	log.Println("[Tunnel] ⚡ Launching Multi-Tunnel Orchestrator for MongoDB...")
 	t.running = true
 
-	// 1. Launch Bore (Lifetime Static Port: bore.pub:<static_port>)
-	go t.startBoreTunnel()
+	// 1. Launch Cloudflare Tunnel daemon if configured (for VPS forwarder & Zero Trust)
+	if t.cfg.IsTunnelConfigured() {
+		go func() {
+			args := []string{
+				"tunnel",
+				"--no-autoupdate",
+				"run",
+				"--token", t.cfg.TunnelToken,
+			}
+			cmd := exec.Command("cloudflared", args...)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			log.Println("[Cloudflare Tunnel] ⚡ Starting cloudflared tunnel daemon...")
+			if err := cmd.Run(); err != nil {
+				log.Printf("[Cloudflare Tunnel] cloudflared exited: %v", err)
+			}
+		}()
+	}
 
-	// 2. Also launch Pinggy as secondary fallback
+	// 2. Also launch Pinggy direct TCP relay
 	go t.startAutoTCPRelay()
 
 	return nil
