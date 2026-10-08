@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sudeepbots/yuki-mongo-render/internal/config"
-	"github.com/sudeepbots/yuki-mongo-render/internal/mongo"
-	"github.com/sudeepbots/yuki-mongo-render/internal/tunnel"
-	"github.com/sudeepbots/yuki-mongo-render/internal/vault"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/mongo"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/tunnel"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/vault"
 )
 
 type Server struct {

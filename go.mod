@@ -1,4 +1,4 @@
-module github.com/sudeepbots/yuki-mongo-render
+module github.com/sudeepbots/YUKI-MONGODB
 
 go 1.27.1
 

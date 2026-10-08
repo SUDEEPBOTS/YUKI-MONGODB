@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sudeepbots/yuki-mongo-render/internal/config"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
 )
 
 type SyncerStats struct {

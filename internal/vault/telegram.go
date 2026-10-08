@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/amarnathcjd/gogram/telegram"
-	"github.com/sudeepbots/yuki-mongo-render/internal/config"
+	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
 )
 
 var dcList = map[int]string{
