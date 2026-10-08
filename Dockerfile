@@ -23,15 +23,9 @@ LABEL description="Official MongoDB 6.0 on Render with Cloudflare Tunnel & Unlim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
-    openssl \
     openssh-client \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
-
-RUN openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
-    -subj "/CN=localhost" \
-    -keyout /etc/ssl/mongo.pem -out /etc/ssl/mongo.pem \
-    && chmod 600 /etc/ssl/mongo.pem
 
 RUN curl -fsSL -o /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
     && chmod +x /usr/local/bin/cloudflared
