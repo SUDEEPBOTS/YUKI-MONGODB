@@ -13,9 +13,15 @@ services:
         value: 27017
       - key: CACHE_SIZE_GB
         value: 0.25
+      - key: MONGO_USER
+        sync: false
+      - key: MONGO_PASS
+        sync: false
+      - key: DOMAIN
+        value: mongo.yukiapi.site
       - key: SYNC_INTERVAL_MIN
         value: 5
-      - key: BOT_TOKEN
+      - key: SESSION_STRING
         sync: false
       - key: CHANNEL_ID
         sync: false

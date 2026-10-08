@@ -67,6 +67,50 @@ func (s *Supervisor) WaitForReady(timeout time.Duration) error {
 	return fmt.Errorf("timeout waiting for MongoDB socket at %s", addr)
 }
 
+// ConfigureAuth sets up root administrative credentials in MongoDB
+func (s *Supervisor) ConfigureAuth() error {
+	if !s.cfg.HasMongoAuth() {
+		log.Println("[MongoDB] No MONGO_USER or MONGO_PASS provided. Running without authentication.")
+		return nil
+	}
+
+	jsScript := fmt.Sprintf(`
+try {
+  db.getSiblingDB("admin").createUser({
+    user: "%s",
+    pwd: "%s",
+    roles: [ { role: "root", db: "admin" } ]
+  });
+  print("USER_CREATED");
+} catch(e) {
+  if (e.code === 51003 || ("" + e).indexOf("already exists") !== -1) {
+    db.getSiblingDB("admin").changeUserPassword("%s", "%s");
+    print("PASSWORD_UPDATED");
+  } else {
+    print("NOTICE: " + e);
+  }
+}
+`, s.cfg.MongoUser, s.cfg.MongoPass, s.cfg.MongoUser, s.cfg.MongoPass)
+
+	cmd := exec.Command("mongosh", "--port", fmt.Sprintf("%d", s.cfg.MongoPort), "--eval", jsScript)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("[WARN] [MongoDB Auth] mongosh notice: %v, out: %s", err, string(out))
+		return nil
+	}
+
+	log.Printf("[MongoDB] 🔐 Root admin credentials enabled for user: '%s'", s.cfg.MongoUser)
+	return nil
+}
+
+// GetConnectionString formats standard MongoDB connection string
+func (s *Supervisor) GetConnectionString(host string, port int) string {
+	if s.cfg.HasMongoAuth() {
+		return fmt.Sprintf("mongodb://%s:%s@%s:%d/?authSource=admin", s.cfg.MongoUser, s.cfg.MongoPass, host, port)
+	}
+	return fmt.Sprintf("mongodb://%s:%d", host, port)
+}
+
 // IsAlive checks if MongoDB TCP socket responds
 func (s *Supervisor) IsAlive() bool {
 	addr := fmt.Sprintf("127.0.0.1:%d", s.cfg.MongoPort)

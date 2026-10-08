@@ -39,28 +39,42 @@ func main() {
 		log.Fatalf("[FATAL] MongoDB failed readiness check: %v", err)
 	}
 
-	// 4. Restore Latest Snapshot from Telegram Vault
+	// 4. Configure Authentication Credentials
+	_ = mongoSupervisor.ConfigureAuth()
+
+	// 5. Restore Latest Snapshot from Telegram Vault
 	if cfg.IsTelegramConfigured() {
 		if err := vaultSyncer.Restore(cfg.MongoPort); err != nil {
 			log.Printf("[WARN] Vault restore notice: %v", err)
 		}
 	}
 
-	// 5. Start Background Ticker Sync
+	// 6. Start Background Ticker Sync
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	if cfg.IsTelegramConfigured() {
 		vaultSyncer.StartSyncLoop(ctx, cfg.MongoPort, cfg.SyncIntervalMin)
 	}
 
-	// 6. Start Cloudflare Tunnel
-	if cfg.IsTunnelConfigured() {
-		if err := tunnelSupervisor.Start(); err != nil {
-			log.Printf("[WARN] Cloudflare tunnel launch warning: %v", err)
-		}
+	// 7. Start Tunnel (Cloudflare Zero Trust or Auto-TCP Relay)
+	if err := tunnelSupervisor.Start(); err != nil {
+		log.Printf("[WARN] Tunnel launch warning: %v", err)
 	}
 
-	// 7. Graceful Shutdown & Signal Handling
+	// 8. Display MongoDB Connection Banner in Logs
+	go func() {
+		time.Sleep(2 * time.Second)
+		host, port := tunnelSupervisor.GetEndpoint()
+		uri := mongoSupervisor.GetConnectionString(host, port)
+		log.Println("=================================================================")
+		log.Println("🍃 YUKI-MONGODB ONLINE & READY FOR BOT CONNECTIONS!")
+		log.Printf("👉 Real Mongo URI : %s", uri)
+		log.Printf("👉 Internal Socket: 127.0.0.1:%d", cfg.MongoPort)
+		log.Printf("👉 Render Health  : 0.0.0.0:%d/health", cfg.Port)
+		log.Println("=================================================================")
+	}()
+
+	// 9. Graceful Shutdown & Signal Handling
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
@@ -88,7 +102,7 @@ func main() {
 		os.Exit(0)
 	}()
 
-	// 8. Run Foreground HTTP Server for Render
+	// 10. Run Foreground HTTP Server for Render
 	if err := httpServer.Start(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("[FATAL] HTTP Server terminated: %v", err)
 	}

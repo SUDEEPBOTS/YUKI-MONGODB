@@ -10,6 +10,9 @@ type Config struct {
 	Port            int
 	MongoPort       int
 	CacheSizeGB     float64
+	MongoUser       string
+	MongoPass       string
+	Domain          string
 	SessionString   string
 	AppID           int32
 	AppHash         string
@@ -37,6 +40,9 @@ func LoadConfig() *Config {
 		Port:            port,
 		MongoPort:       mongoPort,
 		CacheSizeGB:     cacheSize,
+		MongoUser:       getEnv("MONGO_USER", ""),
+		MongoPass:       getEnv("MONGO_PASS", ""),
+		Domain:          getEnv("DOMAIN", "mongo.yukiapi.site"),
 		SessionString:   getEnv("SESSION_STRING", ""),
 		AppID:           int32(appIDInt),
 		AppHash:         getEnv("API_HASH", "b4f0fbf8fb560c4bc9e7b9f3698e474c"),
@@ -58,6 +64,10 @@ func LoadConfig() *Config {
 		cfg.Port, cfg.MongoPort, authType, cfg.ChannelID, cfg.SyncIntervalMin)
 
 	return cfg
+}
+
+func (c *Config) HasMongoAuth() bool {
+	return c.MongoUser != "" && c.MongoPass != ""
 }
 
 func (c *Config) IsTelegramConfigured() bool {

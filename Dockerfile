@@ -23,6 +23,8 @@ LABEL description="Official MongoDB 6.0 on Render with Cloudflare Tunnel & Teleg
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
+    openssh-client \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install official Cloudflare Tunnel connector
