@@ -9,11 +9,15 @@ services:
     envVars:
       - key: PORT
         value: 10000
+      - key: MONGO_PORT
+        value: 27017
+      - key: CACHE_SIZE_GB
+        value: 0.25
+      - key: SYNC_INTERVAL_MIN
+        value: 5
       - key: BOT_TOKEN
         sync: false
       - key: CHANNEL_ID
         sync: false
       - key: TUNNEL_TOKEN
         sync: false
-      - key: SYNC_INTERVAL_MIN
-        value: 5

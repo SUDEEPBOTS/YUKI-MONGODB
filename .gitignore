@@ -1,5 +1,5 @@
 .env
-__pycache__/
+yuki_mongo_agent
 *.tar.gz
 mongodump/
 .data/
