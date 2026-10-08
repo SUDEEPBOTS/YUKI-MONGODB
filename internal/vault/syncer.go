@@ -138,7 +138,6 @@ func (s *Syncer) Backup(port int) error {
 		return fmt.Errorf("dump failed: %w", err)
 	}
 
-	// Check if any database was dumped
 	entries, err := os.ReadDir(dumpDir)
 	if err != nil || len(entries) == 0 {
 		log.Println("[Vault] MongoDB has no user databases yet. Skipping empty dump upload.")

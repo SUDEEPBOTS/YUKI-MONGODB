@@ -44,7 +44,6 @@ func CreateMongoDump(dumpDir string, port int) error {
 
 // RestoreMongoDump executes mongorestore into local instance with --drop
 func RestoreMongoDump(dumpDir string, port int) error {
-	// Look for nested mongodump or direct directories
 	target := dumpDir
 	if fi, err := os.Stat(filepath.Join(dumpDir, "mongodump")); err == nil && fi.IsDir() {
 		target = filepath.Join(dumpDir, "mongodump")

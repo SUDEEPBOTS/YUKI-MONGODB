@@ -75,7 +75,6 @@ func (t *Tunnel) Start() error {
 		return nil
 	}
 
-	// Fallback Mode: Auto Free TCP Relay via Pinggy (No token/domain required)
 	log.Println("[Auto-TCP] ⚠️ No TUNNEL_TOKEN provided. Launching Zero-Config Free TCP Tunnel...")
 	return t.startAutoTCPRelay()
 }
@@ -105,7 +104,6 @@ func (t *Tunnel) startAutoTCPRelay() error {
 	t.running = true
 	t.isFallback = true
 
-	// Parse public TCP port from pinggy output in background
 	go func() {
 		scanner := bufio.NewScanner(stdout)
 		re := regexp.MustCompile(`(a\.pinggy\.io|tcp\.pinggy\.io):(\d+)`)

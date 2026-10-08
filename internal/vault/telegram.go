@@ -163,7 +163,6 @@ func (t *TelegramClient) GetPinnedDocument(channelID int64) (string, int64, erro
 		}
 	}
 
-	// Fallback to HTTP Bot API
 	if t.cfg.BotToken == "" {
 		return "", 0, fmt.Errorf("no bot token or MTProto connection")
 	}
@@ -230,7 +229,6 @@ func (t *TelegramClient) DownloadFile(fileID string, destPath string, channelID 
 		return err
 	}
 
-	// Fallback to Bot API download
 	getURL := fmt.Sprintf("%s?file_id=%s", t.apiURL("getFile"), fileID)
 	resp, err := t.httpClient.Get(getURL)
 	if err != nil {
@@ -268,7 +266,6 @@ func (t *TelegramClient) DownloadFile(fileID string, destPath string, channelID 
 // UploadDocument uploads snapshot archive to Telegram channel
 func (t *TelegramClient) UploadDocument(channelID int64, filePath, caption string) (int64, error) {
 	if t.isMTProto && t.mtClient != nil {
-		// Native MTProto SendMedia
 		log.Printf("[MTProto Worker] Uploading archive %s directly via MTProto socket...", filepath.Base(filePath))
 		sent, err := t.mtClient.SendMedia(channelID, filePath, &telegram.MediaOptions{
 			Caption: caption,
@@ -279,7 +276,6 @@ func (t *TelegramClient) UploadDocument(channelID int64, filePath, caption strin
 		log.Printf("[WARN] MTProto upload notice: %v, falling back to HTTP...", err)
 	}
 
-	// HTTP Bot API fallback
 	file, err := os.Open(filePath)
 	if err != nil {
 		return 0, err
