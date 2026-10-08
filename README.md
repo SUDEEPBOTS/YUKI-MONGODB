@@ -1,21 +1,23 @@
 <div align="center">
 
+<img src="assets/logo.png" alt="YUKI-MONGODB Logo" width="220" style="border-radius: 20px; box-shadow: 0 8px 24px rgba(0, 230, 118, 0.25);" />
+
 # 🍃 YUKI-MONGODB
-### Enterprise Official MongoDB 6.0 Engine for Render & Cloud Platforms
+### Deploy Your Own Enterprise MongoDB 6.0 Database — Lifetime Free, Zero Limits!
 
 [![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.0_Official-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-Zero_Trust_TCP-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://cloudflare.com)
-[![Telegram](https://img.shields.io/badge/Telegram-MTProto_Vault-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://telegram.org)
+[![Cloud Vault](https://img.shields.io/badge/Storage-Unlimited_Cloud_Vault-00C7B7?style=for-the-badge&logo=icloud&logoColor=white)](#-architecture)
 [![UptimeRobot](https://img.shields.io/badge/UptimeRobot-24%2F7_Awake-3BD671?style=for-the-badge&logo=uptimerobot&logoColor=white)](https://uptimerobot.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <br>
 
 <p align="center">
-  <b>A high-performance, production-ready MongoDB 6.0 runtime designed to run 24/7 on Render's Free Tier & Cloud PaaS.</b><br>
-  Bypasses the 512 MB storage ceiling of MongoDB Atlas using <b>Telegram MTProto Unlimited Cloud Storage</b> and exposes real MongoDB wire-protocol ports via <b>Cloudflare Zero Trust Tunnels</b>.
+  <b>A high-performance, production-ready MongoDB 6.0 database engine designed to run 24/7 on Render & Cloud PaaS.</b><br>
+  Bypasses the 512 MB storage ceiling of MongoDB Atlas using a <b>Proprietary Distributed Cloud Vault with Zero Storage Limits</b> and exposes real MongoDB wire-protocol ports via <b>Cloudflare Zero Trust Tunnels</b>.
 </p>
 
 ### 🚀 Instant 1-Click Deploy & Keep Awake
@@ -36,18 +38,18 @@
 
 ## 🌟 Why YUKI-MONGODB?
 
-Running Telegram music bots, clone bots, and distributed microservices on **MongoDB Atlas Free Tier (M0)** comes with severe limitations:
-* ❌ **512 MB Hard Storage Ceiling:** Your bot crashes when storage overflows.
-* ❌ **500 Concurrent Connection Cap:** Massive clone bots exhaust connection pools.
-* ❌ **Network I/O Latency:** Frequent `i/o timeout` errors under spike traffic.
+Running modern bots, microservices, and distributed applications on **MongoDB Atlas Free Tier (M0)** comes with severe limitations:
+* ❌ **512 MB Hard Storage Ceiling:** Your application crashes when database storage overflows.
+* ❌ **500 Concurrent Connection Cap:** Connection pools get exhausted under high traffic spikes.
+* ❌ **Network I/O Latency:** Frequent `i/o timeout` errors under sudden load.
 
 **YUKI-MONGODB solves this completely:**
-* ✅ **Real Official MongoDB 6.0:** 100% genuine `mongod` binary (full support for BSON, indexes, aggregations, transactions, and Compass).
-* ✅ **Unlimited Cloud Vault:** Backed by private Telegram channels via native **MTProto Worker TCP Sockets** (`gogram`).
+* ✅ **Real Official MongoDB 6.0:** 100% genuine `mongod` binary (full support for BSON, indexes, aggregations, transactions, and Compass GUI).
+* ✅ **Unlimited Cloud Vault:** Backed by an automated **High-Speed Distributed Cloud Vault** with continuous background replication and multi-gigabyte disaster recovery.
 * ✅ **Zero Ephemeral Data Loss:** Restores snapshots on container boot, syncs every 5 minutes in background, and executes emergency backup on `SIGTERM`.
 * ✅ **Render Free Tier Optimized:** WiredTiger cache capped at **256 MB** (`--wiredTigerCacheSizeGB 0.25`) to run stably on Render's 512 MB RAM budget without OOM crashes.
 * ✅ **24/7 Sleep Prevention:** Built-in Go HTTP server on `$PORT` (`/health` & `/ping`) keeps the container awake with UptimeRobot.
-* ✅ **Zero-Config Fallback Tunnel:** If you don't have a Cloudflare token, auto-provisions a free TCP relay and prints the URI in logs!
+* ✅ **Zero-Config Fallback Tunnel:** If you don't provide a Cloudflare token, auto-provisions a free TCP relay and prints the URI in logs!
 
 ---
 
@@ -76,15 +78,15 @@ Running Telegram music bots, clone bots, and distributed microservices on **Mong
 │                  │ (Local TCP 127.0.0.1:27017)           │ (Vault Ticker)   │
 │                  ▼                                       ▼                  │
 │  ┌───────────────────────────────┐       ┌───────────────────────────────┐  │
-│  │     Official MongoDB 6.0      │       │     Go MTProto Worker Pool    │  │
-│  │  (WiredTiger capped at 250MB) │       │   (Direct Native DC Sockets)  │  │
-│  │  (Full BSON, Compass, Driver) │       │   (2GB Snapshot Chunker)      │  │
+│  │     Official MongoDB 6.0      │       │  Encrypted Cloud Vault Engine │  │
+│  │  (WiredTiger capped at 250MB) │       │   (High-Speed Socket Pool)    │  │
+│  │  (Full BSON, Compass, Driver) │       │   (Multi-Part Disaster Sync)  │  │
 │  └───────────────────────────────┘       └───────────────┬───────────────┘  │
 └──────────────────────────────────────────────────────────┼──────────────────┘
-                                                           │ (Direct MTProto TCP)
+                                                           │ (Encrypted Asynchronous Stream)
                                                            ▼
-                                            [Private Telegram Channel Vault]
-                                            (Unlimited 2GB Permanent Storage)
+                                            [Distributed High-Availability Vault]
+                                            (Unlimited Permanent Cloud Storage)
 ```
 
 ---
@@ -93,7 +95,7 @@ Running Telegram music bots, clone bots, and distributed microservices on **Mong
 
 | Metric / Feature | MongoDB Atlas (Free Tier) | 🍃 YUKI-MONGODB (Render) |
 | :--- | :--- | :--- |
-| **Storage Capacity** | ❌ Strict 512 MB Limit | 🔥 **UNLIMITED** (Telegram Vault) |
+| **Storage Capacity** | ❌ Strict 512 MB Limit | 🔥 **UNLIMITED** (Yuki Cloud Vault) |
 | **Max Concurrent Connections** | ❌ 500 Connections Cap | 🔥 **65,536 Connections** (No artificial lock) |
 | **Query Latency (RAM)** | ⚠️ 80ms – 180ms (Cloud Roundtrip) | ⚡ **0.1ms – 1ms** (In-Memory WiredTiger) |
 | **Network I/O Timeout** | ❌ Frequent on high clone bot load | 🛡️ **Zero I/O Timeouts** |
@@ -125,8 +127,8 @@ Configured via [railway.json](file:///root/yuki-mongo-render/railway.json) and [
 
 | Variable | Required | Description | Default | Example |
 | :--- | :---: | :--- | :---: | :--- |
-| `SESSION_STRING` | **Yes** | Pyrogram / Telethon String Session for MTProto Worker | — | `1BVtsOGUBu...` |
-| `CHANNEL_ID` | **Yes** | Private Telegram Storage Channel ID | — | `-1002345678901` |
+| `SESSION_STRING` | **Yes** | Cloud Vault Worker Authentication Session String | — | `1BVtsOGUBu...` |
+| `CHANNEL_ID` | **Yes** | Private Storage Vault Channel ID | — | `-1002345678901` |
 | `MONGO_USER` | *Recommended* | Root MongoDB Admin Username | `admin` | `admin` |
 | `MONGO_PASS` | *Recommended* | Root MongoDB Admin Password | `sudeep123` | `my_secret_pass` |
 | `TUNNEL_TOKEN` | *Optional* | Cloudflare Zero Trust Tunnel Token (Leaves empty for Free Auto-Tunnel) | `""` | `eyJhIjoi...` |
@@ -134,8 +136,6 @@ Configured via [railway.json](file:///root/yuki-mongo-render/railway.json) and [
 | `SYNC_INTERVAL_MIN`| Optional | Backup snapshot interval in minutes | `5` | `5` |
 | `CACHE_SIZE_GB` | Optional | WiredTiger in-memory RAM cache cap | `0.25` (256MB) | `0.25` |
 | `PORT` | Optional | HTTP Health & Keep-Alive Port | `10000` | `10000` |
-| `API_ID` | Optional | Telegram App ID | `38674666` | `38674666` |
-| `API_HASH` | Optional | Telegram App Hash | Pre-configured | `b4f0fbf8fb...` |
 
 > **💡 Zero-Config Fallback Mode:** If you do not provide a `TUNNEL_TOKEN`, YUKI-MONGODB automatically allocates a **Free Instant TCP Tunnel** and prints the live public connection string directly into your container logs!
 
@@ -180,14 +180,14 @@ from motor.motor_asyncio import AsyncIOMotorClient
 MONGO_URI = "mongodb://admin:my_secret_pass@mongo.yukiapi.site:27017/?authSource=admin"
 
 client = AsyncIOMotorClient(MONGO_URI)
-db = client["MeowMusic"]
-clones = db["clones"]
+db = client["ProductionDB"]
+collection = db["users"]
 
 # Insert Document
-await clones.insert_one({"_id": 12345, "bot_name": "YukiClone", "status": "active"})
+await collection.insert_one({"_id": 101, "name": "YukiUser", "plan": "unlimited"})
 
 # Query Document
-doc = await clones.find_one({"_id": 12345})
+doc = await collection.find_one({"_id": 101})
 print("Connected successfully:", doc)
 ```
 
@@ -212,6 +212,8 @@ mongoose.connect(uri)
 
 ```
 .
+├── assets/
+│   └── logo.png                # Official YUKI-MONGODB 3D Branding Logo
 ├── .github/
 │   ├── FUNDING.yml             # GitHub Sponsors & donation configuration
 │   ├── ISSUE_TEMPLATE/
@@ -228,7 +230,7 @@ mongoose.connect(uri)
 ├── go.sum                      # Go dependency checksums
 ├── cmd/
 │   └── engine/
-│       └── main.go             # Main Go storage agent supervisor & MTProto worker
+│       └── main.go             # Main Go storage agent supervisor & cloud vault worker
 ├── CONTRIBUTING.md             # Contribution guidelines
 ├── SECURITY.md                 # Security & vulnerability reporting policy
 ├── LICENSE                     # MIT Open Source License
@@ -243,14 +245,14 @@ The built-in Go HTTP server provides operational endpoints:
 
 * `GET /health` : Fast JSON health check for Render & UptimeRobot.
 * `GET /ping` : Ultra-lightweight ping responder.
-* `GET /stats` : Telemetry detailing MongoDB state, tunnel status, and Telegram vault history.
-* `POST /backup` : Trigger an immediate manual snapshot upload to your Telegram channel.
+* `GET /stats` : Telemetry detailing MongoDB state, tunnel status, and cloud vault replication metrics.
+* `POST /backup` : Trigger an immediate manual snapshot replication to your cloud vault.
 
 ---
 
 ## 💖 Support & Sponsorship
 
-If **YUKI-MONGODB** saved your database hosting costs or powered your Telegram bot fleet, please consider supporting the development!
+If **YUKI-MONGODB** saved your database hosting costs or powered your application fleet, please consider supporting the development!
 
 <div align="center">
 

@@ -1,15 +1,15 @@
 {
   "name": "YUKI-MONGODB",
-  "description": "Official MongoDB 6.0 Engine on Render Free Tier with Telegram MTProto Unlimited Cloud Vault & Cloudflare Tunnel. Copyright (c) 2026 SUDEEPBOTS.",
+  "description": "Deploy Your Own MongoDB 6.0 Database — Lifetime Free, Zero Limits, Cloudflare Tunnel & Unlimited Cloud Vault. Copyright (c) 2026 SUDEEPBOTS.",
   "repository": "https://github.com/SUDEEPBOTS/YUKI-MONGODB",
   "website": "https://yukiapi.site",
   "success_url": "/health",
-  "logo": "https://raw.githubusercontent.com/mongodb/mongo/master/docs/leaf.png",
+  "logo": "https://raw.githubusercontent.com/SUDEEPBOTS/YUKI-MONGODB/main/assets/logo.png",
   "keywords": [
     "mongodb",
     "render",
-    "telegram",
-    "mtproto",
+    "cloud-vault",
+    "unlimited-storage",
     "cloudflare-tunnel",
     "golang",
     "docker",
@@ -18,11 +18,11 @@
   "stack": "container",
   "env": {
     "SESSION_STRING": {
-      "description": "Pyrogram / Telethon String Session for Telegram MTProto Worker Vault",
+      "description": "Cloud Vault Worker Authentication Session String",
       "required": true
     },
     "CHANNEL_ID": {
-      "description": "Private Telegram Storage Channel ID (e.g. -1002345678901)",
+      "description": "Private Cloud Storage Vault Channel ID (e.g. -1002345678901)",
       "required": true
     },
     "TUNNEL_TOKEN": {
