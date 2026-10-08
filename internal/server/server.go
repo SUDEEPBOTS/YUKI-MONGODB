@@ -107,20 +107,17 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	relayHost, port := s.tunnel.GetEndpoint()
-	displayHost := s.cfg.Domain
-	if displayHost == "" {
-		displayHost = relayHost
-	}
-	mongoURI := s.mongo.GetConnectionString(displayHost, port)
+	mongoURI := s.mongo.GetConnectionString(relayHost, port)
 
 	resp := map[string]interface{}{
 		"status":          state,
 		"service":         "Yuki-MongoDB-Render (Go Engine)",
-		"domain":          displayHost,
 		"mongodb_port":    s.cfg.MongoPort,
 		"mongodb_alive":   mongoAlive,
 		"tunnel_running":  s.tunnel.IsRunning(),
 		"mongo_uri":       mongoURI,
+		"host":            relayHost,
+		"port":            port,
 		"relay_host":      relayHost,
 		"storage_mode":    "local_ephemeral",
 		"persistent":      false,
@@ -148,11 +145,7 @@ func (s *Server) handleURI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	relayHost, port := s.tunnel.GetEndpoint()
-	displayHost := s.cfg.Domain
-	if displayHost == "" {
-		displayHost = relayHost
-	}
-	uri := s.mongo.GetConnectionString(displayHost, port)
+	uri := s.mongo.GetConnectionString(relayHost, port)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -162,11 +155,10 @@ func (s *Server) handleURI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"domain":     displayHost,
-		"mongo_uri":  uri,
-		"port":       port,
-		"relay_host": relayHost,
-		"status":     "ready",
+		"mongo_uri": uri,
+		"host":      relayHost,
+		"port":      port,
+		"status":    "ready",
 	})
 }
 

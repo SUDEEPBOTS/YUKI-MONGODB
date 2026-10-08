@@ -67,7 +67,7 @@ func LoadConfig() *Config {
 		CacheSizeGB:     cacheSize,
 		MongoUser:       getEnv("MONGO_USER", ""),
 		MongoPass:       getEnv("MONGO_PASS", ""),
-		Domain:          getEnv("DOMAIN", "db.yukiapi.site"),
+		Domain:          getEnv("DOMAIN", ""),
 		SessionString:   getEnv("SESSION_STRING", ""),
 		AppID:           int32(appIDInt),
 		AppHash:         getEnv("API_HASH", "b4f0fbf8fb560c4bc9e7b9f3698e474c"),
