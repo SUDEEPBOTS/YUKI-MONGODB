@@ -8,9 +8,10 @@
 # Licensed under the MIT License (https://opensource.org/licenses/MIT)
 # =================================================================================================
 
-FROM golang:1.22-bookworm AS builder
+FROM golang:1.27-bookworm AS builder
 WORKDIR /src
-COPY go.mod ./
+COPY go.mod go.sum* ./
+RUN go mod download
 COPY internal/ ./internal/
 COPY cmd/ ./cmd/
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/yuki_mongo_agent ./cmd/engine
