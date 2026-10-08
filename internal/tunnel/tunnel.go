@@ -28,7 +28,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-	"strings"
 	"syscall"
 
 	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
@@ -111,10 +110,6 @@ func (t *Tunnel) startAutoTCPRelay() error {
 		re2 := regexp.MustCompile(`([a-zA-Z0-9.-]+(?:pinggy|a\.pinggy)[a-zA-Z0-9.-]*):(\d+)`)
 		for scanner.Scan() {
 			line := scanner.Text()
-			trimmed := strings.TrimSpace(line)
-			if trimmed != "" {
-				log.Printf("[Auto-TCP] %s", trimmed)
-			}
 			var host string
 			var port int
 			if match := re.FindStringSubmatch(line); len(match) == 3 {
@@ -124,11 +119,11 @@ func (t *Tunnel) startAutoTCPRelay() error {
 				host = match[1]
 				port, _ = strconv.Atoi(match[2])
 			}
-			if host != "" && port > 0 {
+			if host != "" && port > 0 && (host != t.publicHost || port != t.publicPort) {
 				t.publicHost = host
 				t.publicPort = port
 				log.Println("=================================================================")
-				log.Printf("🍃 [Auto-TCP] PUBLIC MONGODB CONNECTION STRING READY!")
+				log.Printf("🍃 [Tunnel] Public TCP relay allocated: %s:%d", host, port)
 				if t.cfg.HasMongoAuth() {
 					log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, t.publicHost, t.publicPort)
 				} else {

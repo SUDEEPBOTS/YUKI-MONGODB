@@ -72,15 +72,15 @@ func LoadConfig() *Config {
 		DataDir:         getEnv("DATA_DIR", "/data/db"),
 	}
 
-	authType := "None"
+	authType := "Local Ephemeral (No Telegram Session)"
 	if cfg.SessionString != "" {
-		authType = "MTProto Worker Session (Pure Socket)"
+		authType = "MTProto Worker Session (Cloud Vault Persistent)"
 	} else if cfg.BotToken != "" {
-		authType = "Telegram Bot Token"
+		authType = "Telegram Bot Token (Cloud Vault Persistent)"
 	}
 
-	log.Printf("[Config] Render Port: %d | Mongo Port: %d | Auth: %s | Channel: %d | Sync: %d min",
-		cfg.Port, cfg.MongoPort, authType, cfg.ChannelID, cfg.SyncIntervalMin)
+	log.Printf("[Config] Render Port: %d | Mongo Port: %d | Storage: %s | Sync: %d min",
+		cfg.Port, cfg.MongoPort, authType, cfg.SyncIntervalMin)
 
 	return cfg
 }

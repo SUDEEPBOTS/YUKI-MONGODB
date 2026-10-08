@@ -20,12 +20,15 @@
 package mongo
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 
@@ -56,8 +59,25 @@ func (s *Supervisor) Start() error {
 	}
 
 	s.cmd = exec.Command("mongod", args...)
-	s.cmd.Stdout = os.Stdout
-	s.cmd.Stderr = os.Stderr
+
+	// Pipe mongod stdout and stderr to filter noisy internals and scanner probes
+	stdout, err1 := s.cmd.StdoutPipe()
+	stderr, err2 := s.cmd.StderrPipe()
+	if err1 == nil && err2 == nil {
+		mr := io.MultiReader(stdout, stderr)
+		go func() {
+			scanner := bufio.NewScanner(mr)
+			for scanner.Scan() {
+				line := scanner.Text()
+				// Only display critical errors or fatal issues, suppress info spam and SSL handshake probe logs
+				if strings.Contains(line, `"s":"F"`) || strings.Contains(line, `"s":"E"`) {
+					if !strings.Contains(line, "SSLHandshakeFailed") {
+						log.Printf("[MongoDB Core] %s", line)
+					}
+				}
+			}
+		}()
+	}
 
 	log.Printf("[MongoDB] Launching mongod on port %d (WiredTiger capped at %.2f GB)...", s.cfg.MongoPort, s.cfg.CacheSizeGB)
 	if err := s.cmd.Start(); err != nil {

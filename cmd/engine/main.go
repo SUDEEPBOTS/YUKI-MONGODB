@@ -68,9 +68,18 @@ func main() {
 
 	_ = mongoSupervisor.ConfigureAuth()
 
-	if cfg.IsTelegramConfigured() {
+	if !cfg.IsTelegramConfigured() {
+		log.Println("=================================================================")
+		log.Println("⚠️  WARNING: TELEGRAM SESSION_STRING IS NOT CONFIGURED!")
+		log.Println("⚠️  RUNNING IN LOCAL EPHEMERAL STORAGE MODE.")
+		log.Println("⚠️  ALL DATA WILL BE PERMANENTLY LOST WHEN RENDER RESTARTS OR SLEEPS!")
+		log.Println("⚠️  To enable persistent storage & automatic cloud backups:")
+		log.Println("👉 Set SESSION_STRING and CHANNEL_ID in your Render Environment Variables.")
+		log.Println("=================================================================")
+	} else {
+		log.Println("[Vault] 🛡️ Cloud Vault: Active (Telegram MTProto session connected)")
 		if err := vaultSyncer.Restore(cfg.MongoPort); err != nil {
-			log.Printf("[WARN] Vault restore notice: %v", err)
+			log.Printf("[Vault] Snapshot restore notice: %v", err)
 		}
 	}
 
@@ -86,14 +95,16 @@ func main() {
 
 	go func() {
 		time.Sleep(2 * time.Second)
-		host, port := tunnelSupervisor.GetEndpoint()
-		uri := mongoSupervisor.GetConnectionString(host, port)
-		log.Println("=================================================================")
-		log.Println("🍃 YUKI-MONGODB ONLINE & READY FOR BOT CONNECTIONS!")
-		log.Printf("👉 Real Mongo URI : %s", uri)
-		log.Printf("👉 Internal Socket: 127.0.0.1:%d", cfg.MongoPort)
-		log.Printf("👉 Render Health  : 0.0.0.0:%d/health", cfg.Port)
-		log.Println("=================================================================")
+		if cfg.IsTunnelConfigured() {
+			host, port := tunnelSupervisor.GetEndpoint()
+			uri := mongoSupervisor.GetConnectionString(host, port)
+			log.Println("=================================================================")
+			log.Println("🍃 YUKI-MONGODB ONLINE & READY FOR BOT CONNECTIONS!")
+			log.Printf("👉 Real Mongo URI : %s", uri)
+			log.Printf("👉 Internal Socket: 127.0.0.1:%d", cfg.MongoPort)
+			log.Printf("👉 Render Health  : 0.0.0.0:%d/health", cfg.Port)
+			log.Println("=================================================================")
+		}
 	}()
 
 	sigChan := make(chan os.Signal, 1)
@@ -111,6 +122,8 @@ func main() {
 			if err := vaultSyncer.Backup(cfg.MongoPort); err != nil {
 				log.Printf("[Engine] Emergency backup notice: %v", err)
 			}
+		} else {
+			log.Println("[Engine] Local storage mode active. Database stopping without cloud snapshot.")
 		}
 
 		cancel()

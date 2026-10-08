@@ -80,19 +80,30 @@ func (s *Server) Stop(ctx context.Context) error {
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodHead {
-		w.WriteHeader(http.StatusOK)
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		w.Header().Set("Allow", "GET, HEAD")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"error": "Method not allowed. Allowed methods: GET, HEAD",
+		})
 		return
 	}
 
 	mongoAlive := s.mongo.IsAlive()
 	state := "healthy"
+	statusCode := http.StatusOK
 	if !mongoAlive {
 		state = "degraded"
+		statusCode = http.StatusServiceUnavailable
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(statusCode)
+
+	if r.Method == http.MethodHead {
+		return
+	}
 
 	resp := map[string]interface{}{
 		"status":          state,
@@ -100,15 +111,27 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 		"mongodb_port":    s.cfg.MongoPort,
 		"mongodb_alive":   mongoAlive,
 		"tunnel_running":  s.tunnel.IsRunning(),
+		"storage_mode":    "local_ephemeral",
+		"persistent":      false,
 		"uptime_seconds":  int(time.Since(s.startTime).Seconds()),
-		"telegram_vault":  s.cfg.IsTelegramConfigured(),
 		"server_time_utc": time.Now().UTC().Format(time.RFC3339),
 	}
+
+	if s.cfg.IsTelegramConfigured() {
+		resp["storage_mode"] = "cloud_vault"
+		resp["persistent"] = true
+		resp["telegram_vault"] = true
+	} else {
+		resp["warning"] = "Ephemeral storage active. All data will be deleted when container restarts. Configure SESSION_STRING & CHANNEL_ID for persistent cloud vault."
+		resp["telegram_vault"] = false
+	}
+
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func (s *Server) handleManualBackup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodGet {
+		w.Header().Set("Allow", "GET, POST")
 		http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
 		return
 	}
@@ -127,11 +150,29 @@ func (s *Server) handleManualBackup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		w.Header().Set("Allow", "GET, HEAD")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if r.Method == http.MethodHead {
+		return
+	}
+
+	storageMode := "local_ephemeral"
+	if s.cfg.IsTelegramConfigured() {
+		storageMode = "cloud_vault"
+	}
+
 	stats := map[string]interface{}{
-		"service":   "Yuki-MongoDB-Render",
-		"version":   "1.0.0-golang",
-		"uptime":    time.Since(s.startTime).String(),
+		"service":      "Yuki-MongoDB-Render",
+		"version":      "1.0.0-golang",
+		"storage_mode": storageMode,
+		"uptime":       time.Since(s.startTime).String(),
 		"mongo": map[string]interface{}{
 			"port":          s.cfg.MongoPort,
 			"alive":         s.mongo.IsAlive(),
