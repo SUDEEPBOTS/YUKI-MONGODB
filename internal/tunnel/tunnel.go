@@ -28,6 +28,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
@@ -106,21 +107,34 @@ func (t *Tunnel) startAutoTCPRelay() error {
 
 	go func() {
 		scanner := bufio.NewScanner(stdout)
-		re := regexp.MustCompile(`(a\.pinggy\.io|tcp\.pinggy\.io):(\d+)`)
+		re := regexp.MustCompile(`tcp://([a-zA-Z0-9.-]+):(\d+)`)
+		re2 := regexp.MustCompile(`([a-zA-Z0-9.-]+(?:pinggy|a\.pinggy)[a-zA-Z0-9.-]*):(\d+)`)
 		for scanner.Scan() {
 			line := scanner.Text()
+			trimmed := strings.TrimSpace(line)
+			if trimmed != "" {
+				log.Printf("[Auto-TCP] %s", trimmed)
+			}
+			var host string
+			var port int
 			if match := re.FindStringSubmatch(line); len(match) == 3 {
-				t.publicHost = match[1]
-				t.publicPort, _ = strconv.Atoi(match[2])
+				host = match[1]
+				port, _ = strconv.Atoi(match[2])
+			} else if match := re2.FindStringSubmatch(line); len(match) == 3 {
+				host = match[1]
+				port, _ = strconv.Atoi(match[2])
+			}
+			if host != "" && port > 0 {
+				t.publicHost = host
+				t.publicPort = port
 				log.Println("=================================================================")
-				log.Printf("🌟 [Auto-TCP] PUBLIC MONGODB CONNECTION STRING READY!")
+				log.Printf("🍃 [Auto-TCP] PUBLIC MONGODB CONNECTION STRING READY!")
 				if t.cfg.HasMongoAuth() {
 					log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, t.publicHost, t.publicPort)
 				} else {
 					log.Printf("👉 Real Mongo URI : mongodb://%s:%d", t.publicHost, t.publicPort)
 				}
 				log.Println("=================================================================")
-				break
 			}
 		}
 	}()
