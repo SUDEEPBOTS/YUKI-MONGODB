@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: yuki-mongo-render
+    env: docker
+    plan: free
+    region: singapore
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: BOT_TOKEN
+        sync: false
+      - key: CHANNEL_ID
+        sync: false
+      - key: TUNNEL_TOKEN
+        sync: false
+      - key: SYNC_INTERVAL_MIN
+        value: 5
