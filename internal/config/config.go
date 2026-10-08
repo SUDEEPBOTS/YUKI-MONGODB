@@ -38,6 +38,7 @@ type Config struct {
 	BotToken        string
 	ChannelID       int64
 	TunnelToken     string
+	StaticPort      int
 	SyncIntervalMin int
 	DataDir         string
 	CFKey           string
@@ -54,6 +55,10 @@ func LoadConfig() *Config {
 	}
 	channelID, _ := strconv.ParseInt(getEnv("CHANNEL_ID", "0"), 10, 64)
 	syncInterval, _ := strconv.Atoi(getEnv("SYNC_INTERVAL_MIN", "5"))
+	staticPort, _ := strconv.Atoi(getEnv("STATIC_PORT", "52719"))
+	if staticPort <= 0 {
+		staticPort = 52719
+	}
 
 	appIDInt, _ := strconv.Atoi(getEnv("API_ID", "38674666"))
 
@@ -74,6 +79,7 @@ func LoadConfig() *Config {
 		BotToken:        os.Getenv("BOT_TOKEN"),
 		ChannelID:       channelID,
 		TunnelToken:     os.Getenv("TUNNEL_TOKEN"),
+		StaticPort:      staticPort,
 		SyncIntervalMin: syncInterval,
 		DataDir:         getEnv("DATA_DIR", "/data/db"),
 		CFKey:           os.Getenv("CF_KEY"),

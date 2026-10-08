@@ -30,6 +30,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL -o /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
     && chmod +x /usr/local/bin/cloudflared
 
+RUN curl -fsSL https://github.com/ekzhang/bore/releases/download/v0.5.1/bore-v0.5.1-x86_64-unknown-linux-musl.tar.gz | tar -xz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/bore
+
 COPY --from=builder /bin/yuki_mongo_agent /usr/local/bin/yuki_mongo_agent
 RUN chmod +x /usr/local/bin/yuki_mongo_agent
 

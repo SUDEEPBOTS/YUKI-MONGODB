@@ -55,78 +55,138 @@ func NewTunnel(cfg *config.Config) *Tunnel {
 
 // Start launches Zero-Config Direct TCP Tunnel for MongoDB
 func (t *Tunnel) Start() error {
-	log.Println("[Auto-TCP] ⚡ Launching Zero-Config Direct TCP Tunnel for MongoDB...")
-	return t.startAutoTCPRelay()
+	log.Println("[Tunnel] ⚡ Launching Lifetime Static TCP Tunnel for MongoDB...")
+	t.running = true
+
+	// 1. Launch Bore (Lifetime Static Port: bore.pub:<static_port>)
+	go t.startBoreTunnel()
+
+	// 2. Also launch Pinggy as secondary fallback
+	go t.startAutoTCPRelay()
+
+	return nil
+}
+
+func (t *Tunnel) startBoreTunnel() {
+	boreBin, err := exec.LookPath("bore")
+	if err != nil {
+		log.Println("[Bore] bore binary not found, fallback to Pinggy...")
+		return
+	}
+
+	for {
+		args := []string{
+			"local",
+			"--to", "bore.pub",
+			"--port", strconv.Itoa(t.cfg.StaticPort),
+			strconv.Itoa(t.cfg.MongoPort),
+		}
+
+		cmd := exec.Command(boreBin, args...)
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			log.Printf("[Bore] Stderr pipe error: %v. Retrying in 5s...", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		if err := cmd.Start(); err != nil {
+			log.Printf("[Bore] Launch error: %v. Retrying in 5s...", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		scanner := bufio.NewScanner(stderr)
+		re := regexp.MustCompile(`listening at ([a-zA-Z0-9.-]+):(\d+)`)
+		re2 := regexp.MustCompile(`remote_port=(\d+)`)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if match := re.FindStringSubmatch(line); len(match) == 3 {
+				host := match[1]
+				port, _ := strconv.Atoi(match[2])
+				t.updateEndpoint(host, port, "LIFETIME STATIC TCP")
+			} else if match := re2.FindStringSubmatch(line); len(match) == 2 {
+				port, _ := strconv.Atoi(match[1])
+				t.updateEndpoint("bore.pub", port, "LIFETIME STATIC TCP")
+			}
+		}
+
+		_ = cmd.Wait()
+		log.Println("[Bore] ⚠️ Connection closed. Reconnecting immediately with static port...")
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (t *Tunnel) updateEndpoint(host string, port int, label string) {
+	if host == "" || port <= 0 {
+		return
+	}
+	t.publicHost = host
+	t.publicPort = port
+
+	log.Println("=================================================================")
+	log.Printf("🍃 [Tunnel] %s ACTIVE: %s:%d", label, host, port)
+	if t.cfg.HasMongoAuth() {
+		log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, host, port)
+	} else {
+		log.Printf("👉 Real Mongo URI : mongodb://%s:%d", host, port)
+	}
+	log.Println("=================================================================")
 }
 
 func (t *Tunnel) startAutoTCPRelay() error {
-	t.running = true
 	t.isFallback = true
 
-	go func() {
-		for {
-			sshArgs := []string{
-				"-p", "443",
-				"-o", "StrictHostKeyChecking=no",
-				"-o", "ServerAliveInterval=30",
-				"-o", "ServerAliveCountMax=3",
-				"-o", "ExitOnForwardFailure=yes",
-				"-R", fmt.Sprintf("0:localhost:%d", t.cfg.MongoPort),
-				"tcp@a.pinggy.io",
-			}
-
-			cmd := exec.Command("ssh", sshArgs...)
-			stdout, err := cmd.StdoutPipe()
-			if err != nil {
-				log.Printf("[Auto-TCP] SSH pipe error: %v. Retrying in 5s...", err)
-				time.Sleep(5 * time.Second)
-				continue
-			}
-			cmd.Stderr = cmd.Stdout
-			t.cmd = cmd
-
-			if err := cmd.Start(); err != nil {
-				log.Printf("[Auto-TCP] SSH launch error: %v. Retrying in 5s...", err)
-				time.Sleep(5 * time.Second)
-				continue
-			}
-
-			scanner := bufio.NewScanner(stdout)
-			re := regexp.MustCompile(`tcp://([a-zA-Z0-9.-]+):(\d+)`)
-			re2 := regexp.MustCompile(`([a-zA-Z0-9.-]+(?:pinggy|a\.pinggy)[a-zA-Z0-9.-]*):(\d+)`)
-			for scanner.Scan() {
-				line := scanner.Text()
-				var host string
-				var port int
-				if match := re.FindStringSubmatch(line); len(match) == 3 {
-					host = match[1]
-					port, _ = strconv.Atoi(match[2])
-				} else if match := re2.FindStringSubmatch(line); len(match) == 3 {
-					host = match[1]
-					port, _ = strconv.Atoi(match[2])
-				}
-				if host != "" && port > 0 && (host != t.publicHost || port != t.publicPort) {
-					t.publicHost = host
-					t.publicPort = port
-
-					log.Println("=================================================================")
-					log.Printf("🍃 [Tunnel] Public TCP relay allocated: %s:%d", host, port)
-					if t.cfg.HasMongoAuth() {
-						log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, host, port)
-					} else {
-						log.Printf("👉 Real Mongo URI : mongodb://%s:%d", host, port)
-					}
-					log.Println("=================================================================")
-				}
-			}
-
-			_ = cmd.Wait()
-			log.Println("[Auto-TCP] ⚠️ SSH connection closed. Reconnecting immediately...")
-			time.Sleep(2 * time.Second)
+	for {
+		sshArgs := []string{
+			"-p", "443",
+			"-o", "StrictHostKeyChecking=no",
+			"-o", "ServerAliveInterval=30",
+			"-o", "ServerAliveCountMax=3",
+			"-o", "ExitOnForwardFailure=yes",
+			"-R", fmt.Sprintf("0:localhost:%d", t.cfg.MongoPort),
+			"tcp@a.pinggy.io",
 		}
-	}()
 
-	return nil
+		cmd := exec.Command("ssh", sshArgs...)
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			log.Printf("[Auto-TCP] SSH pipe error: %v. Retrying in 5s...", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		cmd.Stderr = cmd.Stdout
+		t.cmd = cmd
+
+		if err := cmd.Start(); err != nil {
+			log.Printf("[Auto-TCP] SSH launch error: %v. Retrying in 5s...", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		scanner := bufio.NewScanner(stdout)
+		re := regexp.MustCompile(`tcp://([a-zA-Z0-9.-]+):(\d+)`)
+		re2 := regexp.MustCompile(`([a-zA-Z0-9.-]+(?:pinggy|a\.pinggy)[a-zA-Z0-9.-]*):(\d+)`)
+		for scanner.Scan() {
+			line := scanner.Text()
+			var host string
+			var port int
+			if match := re.FindStringSubmatch(line); len(match) == 3 {
+				host = match[1]
+				port, _ = strconv.Atoi(match[2])
+			} else if match := re2.FindStringSubmatch(line); len(match) == 3 {
+				host = match[1]
+				port, _ = strconv.Atoi(match[2])
+			}
+			if host != "" && port > 0 && t.publicHost != "bore.pub" {
+				t.updateEndpoint(host, port, "Auto-TCP Pinggy Relay")
+			}
+		}
+
+		_ = cmd.Wait()
+		log.Println("[Auto-TCP] ⚠️ SSH connection closed. Reconnecting immediately...")
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (t *Tunnel) syncCloudflareDNS(targetHost string) {
