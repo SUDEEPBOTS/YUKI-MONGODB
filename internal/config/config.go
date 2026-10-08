@@ -45,7 +45,7 @@ type Config struct {
 func LoadConfig() *Config {
 	port, _ := strconv.Atoi(getEnv("PORT", "10000"))
 	mongoPort, _ := strconv.Atoi(getEnv("MONGO_PORT", "27017"))
-	cacheSize, _ := strconv.ParseFloat(getEnv("CACHE_SIZE_GB", "0.25"), 64)
+	cacheSize, _ := strconv.ParseFloat(getEnv("CACHE_SIZE_GB", "0.15"), 64)
 	channelID, _ := strconv.ParseInt(getEnv("CHANNEL_ID", "0"), 10, 64)
 	syncInterval, _ := strconv.Atoi(getEnv("SYNC_INTERVAL_MIN", "5"))
 

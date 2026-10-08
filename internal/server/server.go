@@ -58,6 +58,7 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/", s.handleHealth)
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/ping", s.handleHealth)
+	mux.HandleFunc("/uri", s.handleURI)
 	mux.HandleFunc("/backup", s.handleManualBackup)
 	mux.HandleFunc("/stats", s.handleStats)
 
@@ -105,12 +106,16 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	host, port := s.tunnel.GetEndpoint()
+	mongoURI := s.mongo.GetConnectionString(host, port)
+
 	resp := map[string]interface{}{
 		"status":          state,
 		"service":         "Yuki-MongoDB-Render (Go Engine)",
 		"mongodb_port":    s.cfg.MongoPort,
 		"mongodb_alive":   mongoAlive,
 		"tunnel_running":  s.tunnel.IsRunning(),
+		"mongo_uri":       mongoURI,
 		"storage_mode":    "local_ephemeral",
 		"persistent":      false,
 		"uptime_seconds":  int(time.Since(s.startTime).Seconds()),
@@ -127,6 +132,31 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (s *Server) handleURI(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		w.Header().Set("Allow", "GET, HEAD")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	host, port := s.tunnel.GetEndpoint()
+	uri := s.mongo.GetConnectionString(host, port)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if r.Method == http.MethodHead {
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"mongo_uri": uri,
+		"host":      host,
+		"port":      port,
+		"status":    "ready",
+	})
 }
 
 func (s *Server) handleManualBackup(w http.ResponseWriter, r *http.Request) {

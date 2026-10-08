@@ -123,6 +123,11 @@ func (s *Syncer) Backup(port int) error {
 		return fmt.Errorf("telegram client not configured")
 	}
 
+	if !s.stats.LastSyncTime.IsZero() && time.Since(s.stats.LastSyncTime) < 2*time.Minute && s.stats.LastStatus == "synced" {
+		log.Println("[Vault] Snapshot skipped (cooldown active: last backup was within 2 minutes).")
+		return nil
+	}
+
 	timestamp := time.Now().UTC().Format("2006-01-02 15:04:05 UTC")
 	log.Printf("[Vault] Generating MongoDB dump snapshot at %s...", timestamp)
 
