@@ -10,6 +10,9 @@ type Config struct {
 	Port            int
 	MongoPort       int
 	CacheSizeGB     float64
+	SessionString   string
+	AppID           int32
+	AppHash         string
 	BotToken        string
 	ChannelID       int64
 	TunnelToken     string
@@ -24,6 +27,8 @@ func LoadConfig() *Config {
 	channelID, _ := strconv.ParseInt(getEnv("CHANNEL_ID", "0"), 10, 64)
 	syncInterval, _ := strconv.Atoi(getEnv("SYNC_INTERVAL_MIN", "5"))
 
+	appIDInt, _ := strconv.Atoi(getEnv("API_ID", "38674666"))
+
 	if syncInterval < 1 {
 		syncInterval = 5
 	}
@@ -32,6 +37,9 @@ func LoadConfig() *Config {
 		Port:            port,
 		MongoPort:       mongoPort,
 		CacheSizeGB:     cacheSize,
+		SessionString:   getEnv("SESSION_STRING", ""),
+		AppID:           int32(appIDInt),
+		AppHash:         getEnv("API_HASH", "b4f0fbf8fb560c4bc9e7b9f3698e474c"),
 		BotToken:        os.Getenv("BOT_TOKEN"),
 		ChannelID:       channelID,
 		TunnelToken:     os.Getenv("TUNNEL_TOKEN"),
@@ -39,14 +47,21 @@ func LoadConfig() *Config {
 		DataDir:         getEnv("DATA_DIR", "/data/db"),
 	}
 
-	log.Printf("[Config] Render HTTP Port: %d | Mongo Port: %d | WiredTiger Cap: %.2f GB | Sync Interval: %d min",
-		cfg.Port, cfg.MongoPort, cfg.CacheSizeGB, cfg.SyncIntervalMin)
+	authType := "None"
+	if cfg.SessionString != "" {
+		authType = "MTProto Worker Session (Pure Socket)"
+	} else if cfg.BotToken != "" {
+		authType = "Telegram Bot Token"
+	}
+
+	log.Printf("[Config] Render Port: %d | Mongo Port: %d | Auth: %s | Channel: %d | Sync: %d min",
+		cfg.Port, cfg.MongoPort, authType, cfg.ChannelID, cfg.SyncIntervalMin)
 
 	return cfg
 }
 
 func (c *Config) IsTelegramConfigured() bool {
-	return c.BotToken != "" && c.ChannelID != 0
+	return (c.SessionString != "" || c.BotToken != "") && c.ChannelID != 0
 }
 
 func (c *Config) IsTunnelConfigured() bool {

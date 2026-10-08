@@ -30,7 +30,7 @@ type Syncer struct {
 func NewSyncer(cfg *config.Config) *Syncer {
 	var tgClient *TelegramClient
 	if cfg.IsTelegramConfigured() {
-		tgClient = NewTelegramClient(cfg.BotToken)
+		tgClient = NewTelegramClient(cfg)
 	}
 
 	return &Syncer{
@@ -68,7 +68,7 @@ func (s *Syncer) Restore(port int) error {
 	archivePath := fmt.Sprintf("%s/restore_snapshot.tar.gz", s.workingDir)
 	defer os.Remove(archivePath)
 
-	if err := s.client.DownloadFile(fileID, archivePath); err != nil {
+	if err := s.client.DownloadFile(fileID, archivePath, s.cfg.ChannelID); err != nil {
 		return fmt.Errorf("failed to download snapshot: %w", err)
 	}
 
