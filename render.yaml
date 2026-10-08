@@ -1,6 +1,16 @@
+# =================================================================================================
+# Project       : YUKI-MONGODB
+# Official Repo : https://github.com/SUDEEPBOTS/YUKI-MONGODB
+# Description   : Render PaaS Infrastructure-as-Code Blueprint
+# Maintainer    : SUDEEPBOTS <https://github.com/SUDEEPBOTS>
+#
+# Copyright (c) 2026 SUDEEPBOTS. All rights reserved.
+# Licensed under the MIT License (https://opensource.org/licenses/MIT)
+# =================================================================================================
+
 services:
   - type: web
-    name: yuki-mongo-render
+    name: yuki-mongodb
     env: docker
     plan: free
     region: singapore

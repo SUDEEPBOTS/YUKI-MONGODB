@@ -1,0 +1,45 @@
+name: CI & Docker Build Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-agent:
+    name: Build Go Storage Engine
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Download Go Dependencies
+        run: go mod download
+
+      - name: Compile Yuki Agent Binary
+        run: |
+          CGO_ENABLED=0 go build -v -ldflags="-s -w" -o yuki_mongo_agent ./cmd/engine
+
+  docker-lint:
+    name: Dockerfile Syntax & Build Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image (Dry-run / Cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: sudeepbots/yuki-mongodb:test

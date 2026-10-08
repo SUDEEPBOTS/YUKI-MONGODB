@@ -1,3 +1,13 @@
+# =================================================================================================
+# Project       : YUKI-MONGODB
+# Official Repo : https://github.com/SUDEEPBOTS/YUKI-MONGODB
+# Description   : Multi-Stage Production Container for MongoDB 6.0 & Yuki Agent
+# Maintainer    : SUDEEPBOTS <https://github.com/SUDEEPBOTS>
+#
+# Copyright (c) 2026 SUDEEPBOTS. All rights reserved.
+# Licensed under the MIT License (https://opensource.org/licenses/MIT)
+# =================================================================================================
+
 # ==============================================================================
 # Stage 1: Build Enterprise Go Orchestrator Binary
 # ==============================================================================

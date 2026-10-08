@@ -1,3 +1,22 @@
+/**
+ * =================================================================================================
+ *   __     __ _    _  _  __ _____     __  __  ____   _   _   ____   ____   ____   ____  
+ *   \ \   / /| |  | || |/ /|_   _|   |  \/  |/ __ \ | \ | | / ___| / __ \ |  _ \ | __ ) 
+ *    \ \ / / | |  | || ' /   | |     | |\/| || |  | ||  \| || |  _ | |  | || | | ||  _ \ 
+ *     \ V /  | |__| || . \  _| |_    | |  | || |__| || |\  || |_| || |__| || |_| || |_) |
+ *      \_/    \____/ |_|\_\|_____|   |_|  |_| \____/ |_| \_| \____| \____/ |____/ |____/  
+ *
+ * =================================================================================================
+ * Project       : YUKI-MONGODB
+ * Official Repo : https://github.com/SUDEEPBOTS/YUKI-MONGODB
+ * Description   : Official MongoDB 6.0 Process Supervisor & Lifecycle Engine
+ * Maintainer    : SUDEEPBOTS <https://github.com/SUDEEPBOTS>
+ *
+ * Copyright (c) 2026 SUDEEPBOTS. All rights reserved.
+ * Licensed under the MIT License (https://opensource.org/licenses/MIT)
+ * =================================================================================================
+ */
+
 package mongo
 
 import (

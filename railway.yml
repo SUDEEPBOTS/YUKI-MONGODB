@@ -1,0 +1,19 @@
+# =================================================================================================
+# Project       : YUKI-MONGODB
+# Official Repo : https://github.com/SUDEEPBOTS/YUKI-MONGODB
+# Description   : Railway Deployment Configuration
+# Maintainer    : SUDEEPBOTS <https://github.com/SUDEEPBOTS>
+#
+# Copyright (c) 2026 SUDEEPBOTS. All rights reserved.
+# Licensed under the MIT License (https://opensource.org/licenses/MIT)
+# =================================================================================================
+
+build:
+  builder: DOCKERFILE
+  dockerfilePath: Dockerfile
+
+deploy:
+  healthcheckPath: /health
+  healthcheckTimeout: 300
+  restartPolicyType: ON_FAILURE
+  restartPolicyMaxRetries: 5

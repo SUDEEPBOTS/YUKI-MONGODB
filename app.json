@@ -1,0 +1,63 @@
+{
+  "name": "YUKI-MONGODB",
+  "description": "Official MongoDB 6.0 Engine on Render Free Tier with Telegram MTProto Unlimited Cloud Vault & Cloudflare Tunnel. Copyright (c) 2026 SUDEEPBOTS.",
+  "repository": "https://github.com/SUDEEPBOTS/YUKI-MONGODB",
+  "website": "https://yukiapi.site",
+  "success_url": "/health",
+  "logo": "https://raw.githubusercontent.com/mongodb/mongo/master/docs/leaf.png",
+  "keywords": [
+    "mongodb",
+    "render",
+    "telegram",
+    "mtproto",
+    "cloudflare-tunnel",
+    "golang",
+    "docker",
+    "database"
+  ],
+  "stack": "container",
+  "env": {
+    "SESSION_STRING": {
+      "description": "Pyrogram / Telethon String Session for Telegram MTProto Worker Vault",
+      "required": true
+    },
+    "CHANNEL_ID": {
+      "description": "Private Telegram Storage Channel ID (e.g. -1002345678901)",
+      "required": true
+    },
+    "TUNNEL_TOKEN": {
+      "description": "Cloudflare Zero Trust Tunnel Token (Leave empty for Free Auto-TCP Tunnel)",
+      "required": false
+    },
+    "MONGO_USER": {
+      "description": "MongoDB Admin Username for Authentication (Optional)",
+      "value": "admin",
+      "required": false
+    },
+    "MONGO_PASS": {
+      "description": "MongoDB Admin Password for Authentication (Optional)",
+      "value": "sudeep123",
+      "required": false
+    },
+    "DOMAIN": {
+      "description": "Custom Cloudflare Tunnel domain (default: mongo.yukiapi.site)",
+      "value": "mongo.yukiapi.site",
+      "required": false
+    },
+    "SYNC_INTERVAL_MIN": {
+      "description": "Database snapshot backup frequency in minutes",
+      "value": "5",
+      "required": false
+    },
+    "CACHE_SIZE_GB": {
+      "description": "WiredTiger in-memory cache limit in GB (0.25 = 256MB for Render Free Tier)",
+      "value": "0.25",
+      "required": false
+    },
+    "PORT": {
+      "description": "HTTP Health & Keep-Alive Port",
+      "value": "10000",
+      "required": false
+    }
+  }
+}
