@@ -112,7 +112,14 @@ func (t *Tunnel) startAutoTCPRelay() error {
 			if match := re.FindStringSubmatch(line); len(match) == 3 {
 				t.publicHost = match[1]
 				t.publicPort, _ = strconv.Atoi(match[2])
-				log.Printf("[Auto-TCP] 🌟 Live Free TCP Relay Allocated: %s:%d", t.publicHost, t.publicPort)
+				log.Println("=================================================================")
+				log.Printf("🌟 [Auto-TCP] PUBLIC MONGODB CONNECTION STRING READY!")
+				if t.cfg.HasMongoAuth() {
+					log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, t.publicHost, t.publicPort)
+				} else {
+					log.Printf("👉 Real Mongo URI : mongodb://%s:%d", t.publicHost, t.publicPort)
+				}
+				log.Println("=================================================================")
 				break
 			}
 		}

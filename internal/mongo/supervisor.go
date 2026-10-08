@@ -55,6 +55,10 @@ func (s *Supervisor) Start() error {
 		"--wiredTigerCacheSizeGB", fmt.Sprintf("%.2f", s.cfg.CacheSizeGB),
 	}
 
+	if _, err := os.Stat("/etc/ssl/mongo.pem"); err == nil {
+		args = append(args, "--tlsMode", "allowTLS", "--tlsCertificateKeyFile", "/etc/ssl/mongo.pem")
+	}
+
 	s.cmd = exec.Command("mongod", args...)
 	s.cmd.Stdout = os.Stdout
 	s.cmd.Stderr = os.Stderr
