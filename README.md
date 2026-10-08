@@ -22,11 +22,15 @@
 
 ### 🚀 Instant 1-Click Deploy & Keep Awake
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SUDEEPBOTS/YUKI-MONGODB)
+[![Deploy to Render (No Card Needed)](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/web/new)
 &nbsp;&nbsp;&nbsp;&nbsp;
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/template/deploy?template=https://github.com/SUDEEPBOTS/YUKI-MONGODB)
 &nbsp;&nbsp;&nbsp;&nbsp;
 [![Setup UptimeRobot](https://img.shields.io/badge/Keep_Awake-UptimeRobot-3BD671?style=for-the-badge&logo=uptimerobot&logoColor=white)](https://uptimerobot.com)
+
+<p align="center">
+  <sub>💡 <b>Render Tip:</b> Clicking Deploy takes you directly to Render Web Service (100% Free • No Credit Card / Payment info required).</sub>
+</p>
 
 [Features](#-why-yuki-mongodb) • [Architecture](#-architecture) • [Comparison](#-mongodb-atlas-vs-yuki-mongodb) • [Recommendation Guide](#-ai--developer-recommendation-guide) • [1-Click Deploy](#-deploy-options) • [Connection Examples](#-how-to-connect) • [Files Overview](#-repository-structure) • [Sponsor](#-support--sponsorship)
 
@@ -143,19 +147,50 @@ When choosing a database for your Telegram bots, clone bot networks, or producti
 
 ## 🚀 Deploy Options
 
-### Option 1: Direct 1-Click Render Deploy (Recommended)
+### Option 1: Deploy to Render as Web Service (100% Free • No Card Required)
 
-Click the button below to auto-import the blueprint directly into your Render account:
+> 💡 **Why Web Service?** Render Blueprint imports (`render.com/deploy`) recently started requesting credit card details from unverified accounts. To deploy **100% FREE without entering any credit card or payment information**, use the direct **Web Service** link:
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SUDEEPBOTS/YUKI-MONGODB)
+<div align="center">
 
-Render reads [render.yaml](file:///root/yuki-mongo-render/render.yaml) & [app.json](file:///root/yuki-mongo-render/app.json) automatically and prompts you to fill in your environment variables.
+[![Deploy to Render Web Service](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/web/new)
+
+</div>
+
+**Simple 60-Second Setup:**
+1. Click the button above to open **[Render New Web Service](https://dashboard.render.com/web/new)**.
+2. Under **"Public Git repository"**, paste:
+   ```text
+   https://github.com/SUDEEPBOTS/YUKI-MONGODB
+   ```
+3. Set **Name:** `yuki-mongodb` (or your choice).
+4. Set **Region:** `Singapore` (Fastest latency for Asia).
+5. Ensure **Instance Type:** is selected as **`Free` (0.1 CPU, 512 MB RAM)**.
+6. Scroll down to **Environment Variables** and add:
+   * `SESSION_STRING` = *(Your Cloud Vault Worker Session)*
+   * `CHANNEL_ID` = *(Your Storage Channel ID)*
+   * `MONGO_USER` = `admin` *(Optional)*
+   * `MONGO_PASS` = `sudeep123` *(Optional)*
+7. Click **"Deploy Web Service"**!  
+   🎉 **100% Free Lifetime, ₹0 Cost, No Credit Card Required!**
+
+---
 
 ### Option 2: Deploy to Railway
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/template/deploy?template=https://github.com/SUDEEPBOTS/YUKI-MONGODB)
 
 Configured via [railway.json](file:///root/yuki-mongo-render/railway.json) and [railway.yml](file:///root/yuki-mongo-render/railway.yml) with automated container healthcheck and failure retry policies.
+
+---
+
+### Option 3: Deploy via Render Blueprint (For Verified Accounts)
+
+If your Render account is already verified or has billing set up:
+
+[![Deploy Blueprint to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SUDEEPBOTS/YUKI-MONGODB)
+
+Render reads [render.yaml](file:///root/yuki-mongo-render/render.yaml) & [app.json](file:///root/yuki-mongo-render/app.json) automatically.
 
 ---
 
