@@ -37,3 +37,9 @@ services:
         sync: false
       - key: TUNNEL_TOKEN
         sync: false
+      - key: CF_KEY
+        sync: false
+      - key: CF_EMAIL
+        sync: false
+      - key: CF_ZONE_ID
+        sync: false

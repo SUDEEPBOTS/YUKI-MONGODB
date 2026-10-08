@@ -21,14 +21,18 @@ package tunnel
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/sudeepbots/YUKI-MONGODB/internal/config"
 )
@@ -122,12 +126,22 @@ func (t *Tunnel) startAutoTCPRelay() error {
 			if host != "" && port > 0 && (host != t.publicHost || port != t.publicPort) {
 				t.publicHost = host
 				t.publicPort = port
+
+				t.syncCloudflareDNS(host)
+
+				displayHost := t.cfg.Domain
+				if displayHost == "" {
+					displayHost = host
+				}
+
 				log.Println("=================================================================")
 				log.Printf("🍃 [Tunnel] Public TCP relay allocated: %s:%d", host, port)
 				if t.cfg.HasMongoAuth() {
-					log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, t.publicHost, t.publicPort)
+					log.Printf("👉 Real Mongo URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, displayHost, port)
+					log.Printf("👉 Direct TCP URI : mongodb://%s:%s@%s:%d/?authSource=admin", t.cfg.MongoUser, t.cfg.MongoPass, host, port)
 				} else {
-					log.Printf("👉 Real Mongo URI : mongodb://%s:%d", t.publicHost, t.publicPort)
+					log.Printf("👉 Real Mongo URI : mongodb://%s:%d", displayHost, port)
+					log.Printf("👉 Direct TCP URI : mongodb://%s:%d", host, port)
 				}
 				log.Println("=================================================================")
 			}
@@ -135,6 +149,69 @@ func (t *Tunnel) startAutoTCPRelay() error {
 	}()
 
 	return nil
+}
+
+func (t *Tunnel) syncCloudflareDNS(targetHost string) {
+	if t.cfg.CFKey == "" || t.cfg.CFEmail == "" || t.cfg.CFZoneID == "" || t.cfg.Domain == "" {
+		return
+	}
+
+	go func() {
+		client := &http.Client{Timeout: 10 * time.Second}
+		listURL := fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records?name=%s", t.cfg.CFZoneID, t.cfg.Domain)
+		req, err := http.NewRequest("GET", listURL, nil)
+		if err != nil {
+			return
+		}
+		req.Header.Set("X-Auth-Key", t.cfg.CFKey)
+		req.Header.Set("X-Auth-Email", t.cfg.CFEmail)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return
+		}
+		defer resp.Body.Close()
+
+		var listResp struct {
+			Success bool `json:"success"`
+			Result  []struct {
+				ID      string `json:"id"`
+				Content string `json:"content"`
+			} `json:"result"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&listResp); err != nil || len(listResp.Result) == 0 {
+			return
+		}
+
+		recID := listResp.Result[0].ID
+		if listResp.Result[0].Content == targetHost {
+			log.Printf("[Cloudflare DNS] ✅ %s is already synced to %s", t.cfg.Domain, targetHost)
+			return
+		}
+
+		putURL := fmt.Sprintf("https://api.cloudflare.com/client/v4/zones/%s/dns_records/%s", t.cfg.CFZoneID, recID)
+		payload := map[string]interface{}{
+			"type":    "CNAME",
+			"name":    t.cfg.Domain,
+			"content": targetHost,
+			"proxied": false,
+			"ttl":     60,
+		}
+		b, _ := json.Marshal(payload)
+		putReq, err := http.NewRequest("PUT", putURL, bytes.NewBuffer(b))
+		if err != nil {
+			return
+		}
+		putReq.Header.Set("X-Auth-Key", t.cfg.CFKey)
+		putReq.Header.Set("X-Auth-Email", t.cfg.CFEmail)
+		putReq.Header.Set("Content-Type", "application/json")
+
+		putResp, err := client.Do(putReq)
+		if err == nil {
+			_ = putResp.Body.Close()
+			log.Printf("[Cloudflare DNS] 🌐 Auto-updated %s -> %s (Proxied: false, TTL: 60s)", t.cfg.Domain, targetHost)
+		}
+	}()
 }
 
 func (t *Tunnel) GetEndpoint() (string, int) {

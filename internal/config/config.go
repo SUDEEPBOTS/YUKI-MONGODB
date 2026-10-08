@@ -40,6 +40,9 @@ type Config struct {
 	TunnelToken     string
 	SyncIntervalMin int
 	DataDir         string
+	CFKey           string
+	CFEmail         string
+	CFZoneID        string
 }
 
 func LoadConfig() *Config {
@@ -61,7 +64,7 @@ func LoadConfig() *Config {
 		CacheSizeGB:     cacheSize,
 		MongoUser:       getEnv("MONGO_USER", ""),
 		MongoPass:       getEnv("MONGO_PASS", ""),
-		Domain:          getEnv("DOMAIN", "mongo.yukiapi.site"),
+		Domain:          getEnv("DOMAIN", "db.yukiapi.site"),
 		SessionString:   getEnv("SESSION_STRING", ""),
 		AppID:           int32(appIDInt),
 		AppHash:         getEnv("API_HASH", "b4f0fbf8fb560c4bc9e7b9f3698e474c"),
@@ -70,6 +73,9 @@ func LoadConfig() *Config {
 		TunnelToken:     os.Getenv("TUNNEL_TOKEN"),
 		SyncIntervalMin: syncInterval,
 		DataDir:         getEnv("DATA_DIR", "/data/db"),
+		CFKey:           os.Getenv("CF_KEY"),
+		CFEmail:         os.Getenv("CF_EMAIL"),
+		CFZoneID:        os.Getenv("CF_ZONE_ID"),
 	}
 
 	authType := "Local Ephemeral (No Telegram Session)"
